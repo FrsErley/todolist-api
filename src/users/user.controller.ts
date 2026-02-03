@@ -6,12 +6,31 @@ import {
   getUsers,
   updateUser,
 } from "./user.service";
+import { AppError } from "../utils/erro";
 
 class UserController {
   async create(req: Request, res: Response) {
-    const { body }: any = req;
-    const newUser = await createUser(body);
-    return res.status(201).json(newUser);
+    try {
+      const { body } = req;
+
+      const newUser = await createUser(body);
+
+      return res.status(201).json(newUser);
+    } catch (error: any) {
+      console.error("ERRO CREATE USER:", error);
+
+      if (error instanceof AppError) {
+        return res.status(400).json({
+          status: "error",
+          message: error.message,
+        });
+      }
+
+      return res.status(500).json({
+        status: "error",
+        message: "Internal server error",
+      });
+    }
   }
 
   async getAll(req: Request, res: Response) {
